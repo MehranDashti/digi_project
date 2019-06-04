@@ -23,7 +23,7 @@ class User implements UserInterface
     private $username;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="text")
      */
     private $roles = [];
 
@@ -32,6 +32,11 @@ class User implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $is_admin;
 
     public function getId(): ?int
     {
@@ -104,5 +109,17 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getIsAdmin(): ?int
+    {
+        return $this->is_admin;
+    }
+
+    public function setIsAdmin(?int $is_admin): self
+    {
+        $this->is_admin = $is_admin;
+
+        return $this;
     }
 }
