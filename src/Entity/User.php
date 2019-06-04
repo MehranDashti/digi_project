@@ -156,7 +156,9 @@ class User implements UserInterface
      */
     function prePersist()
     {
-        $this->setIsAdmin(1);
-        $this->setRoles(['AdminUser']);
+        if ($this->id == null) {
+            $this->setIsAdmin(1);
+            $this->setRoles(['AdminUser']);
+        }
     }
 }
