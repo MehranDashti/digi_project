@@ -38,6 +38,11 @@ class User implements UserInterface
      */
     private $is_admin;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Profile", mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $profile;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -119,6 +124,24 @@ class User implements UserInterface
     public function setIsAdmin(?int $is_admin): self
     {
         $this->is_admin = $is_admin;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): self
+    {
+        $this->profile = $profile;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newUser = $profile === null ? null : $this;
+        if ($newUser !== $profile->getUser()) {
+            $profile->setUser($newUser);
+        }
 
         return $this;
     }
