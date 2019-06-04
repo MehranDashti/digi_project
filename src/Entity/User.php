@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class User implements UserInterface
 {
@@ -23,7 +25,7 @@ class User implements UserInterface
     private $username;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="json")
      */
     private $roles = [];
 
@@ -55,7 +57,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return (string)$this->username;
     }
 
     public function setUsername(string $username): self
@@ -89,7 +91,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self
@@ -144,5 +146,17 @@ class User implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * This method has been used for initialize role and is_admin field before create user
+     *
+     * @ORM\PrePersist()
+     * @author Mehran
+     */
+    function prePersist()
+    {
+        $this->setIsAdmin(1);
+        $this->setRoles(['AdminUser']);
     }
 }
