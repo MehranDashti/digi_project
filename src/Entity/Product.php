@@ -3,9 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+//@ORM\EntityListeners({"App\EventListener\ProductListener"})
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Product
 {
@@ -35,16 +36,6 @@ class Product
      * @ORM\Column(type="integer", nullable=true)
      */
     private $updated_at;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\user", cascade={"persist", "remove"})
-     */
-    private $created_by;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\user", cascade={"persist", "remove"})
-     */
-    private $updated_by;
 
     public function getId(): ?int
     {
@@ -99,27 +90,9 @@ class Product
         return $this;
     }
 
-    public function getCreatedBy(): ?user
+    function prePersist()
     {
-        return $this->created_by;
-    }
-
-    public function setCreatedBy(?user $created_by): self
-    {
-        $this->created_by = $created_by;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?user
-    {
-        return $this->updated_by;
-    }
-
-    public function setUpdatedBy(?user $updated_by): self
-    {
-        $this->updated_by = $updated_by;
-
-        return $this;
+        $this->created_at = time();
+        $this->created_by = time();
     }
 }
