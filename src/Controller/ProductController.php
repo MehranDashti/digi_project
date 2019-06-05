@@ -36,6 +36,7 @@ class ProductController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      * @Route("/product/add", name="add_product")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
+     * @author Mehran
      */
     public function add(Request $request)
     {
@@ -47,8 +48,6 @@ class ProductController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->getConnection()->beginTransaction();
             try {
-//                $product->setCreatedBy($this->getUser());
-//                $product->setUpdatedBy($this->getUser());
                 $entityManager->persist($product);
                 $entityManager->flush();
                 $entityManager->getConnection()->commit();
@@ -66,6 +65,47 @@ class ProductController extends AbstractController
         }
 
         return $this->render('product/add.html.twig', [
+            'form' => $form->createView(),
+            'errors' => $form->getErrors()
+        ]);
+    }
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @Route("/product/edit/{product_id}", name="edit_product", requirements={"product_id"="\d+"})
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
+     * @author Mehran
+     */
+    public function edit($product_id, Request $request)
+    {
+        $product = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->findOneBy(['id' => $product_id]);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $form = $this->createForm(ProductType::class, $product);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->getConnection()->beginTransaction();
+            try {
+                $entityManager->persist($product);
+                $entityManager->flush();
+                $entityManager->getConnection()->commit();
+
+                $this->addFlash("success", "New Product has been updated successfully :);)");
+                return $this->redirectToRoute('product_list');
+            } catch (Exception $e) {
+                $entityManager->getConnection()->rollBack();
+                echo "<pre>";
+                print_r($e->getMessage());
+                die();
+                $this->addFlash("error", "There is some problem you can not create Product :(:(");
+                return $this->redirectToRoute('add_product');
+            }
+        }
+
+        return $this->render('product/update.html.twig', [
             'form' => $form->createView(),
             'errors' => $form->getErrors()
         ]);
