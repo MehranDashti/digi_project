@@ -14,10 +14,9 @@ class ProductType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', TextType::class, array('required' => TRUE,))
-            ->add('description', TextType::class, array('required' => TRUE,))
-            ->add('save', SubmitType::class)
-        ;
+            ->add('title', TextType::class, ['required' => true])
+            ->add('description', TextType::class, ['required' => true])
+            ->add('save', SubmitType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
