@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper { width: 100%; text-align: center; }
+        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+        .form {width: 70%; text-align: center;  border: #565656 solid 1px}
+    </style>
+    <div class="example-wrapper">
+        <div class="form">
+            {{ form_start(form) }}
+                {% block form_errors %}
+                    {% spaceless %}
+                        {% if errors|length > 0 %}
+                            <ul>
+                                {% for error in errors %}
+                                    <li>{{ error.message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                {% endspaceless %}
+            {% endblock form_errors %}
+
+            <div class="row">
+                <div class="col">
+                    {{ form_row(form.color) }}
+                </div>
+                <div class="col">
+                    {{ form_row(form.price) }}
+                </div>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

@@ -44,8 +44,8 @@
             {% for item in variants %}
                 <tr>
                     <td>{{ item.getColor }}</td>
-                    <td>{{ item.getTitle }}</td>
-                    <td>{{ item.getTitle }}</td>
+                    <td>{{ item.getPrice }}</td>
+                    <td>{{ item.getProduct.getTitle }}</td>
                     <td>
                         <a href="{{ app.request.getBaseURL() }}/variant/edit/{{ item.getId }}">Edit</a>
                         <a href="{{ app.request.getBaseURL() }}/variant/delete/{{ item.getId }}">delete</a>
