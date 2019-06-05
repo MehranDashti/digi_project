@@ -69,7 +69,9 @@ class ProductController extends AbstractController
             'errors' => $form->getErrors()
         ]);
     }
+
     /**
+     * @param $product_id
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      * @Route("/product/edit/{product_id}", name="edit_product", requirements={"product_id"="\d+"})
@@ -97,11 +99,8 @@ class ProductController extends AbstractController
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
-                echo "<pre>";
-                print_r($e->getMessage());
-                die();
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
-                return $this->redirectToRoute('add_product');
+                return $this->redirectToRoute('edit_product');
             }
         }
 
@@ -109,5 +108,34 @@ class ProductController extends AbstractController
             'form' => $form->createView(),
             'errors' => $form->getErrors()
         ]);
+    }
+
+    /**
+     * @param $product_id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @Route("/product/delete/{product_id}", name="delete_product", requirements={"product_id"="\d+"})
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
+     * @author Mehran
+     */
+    public function delete($product_id)
+    {
+        $product = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->findOneBy(['id' => $product_id]);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->getConnection()->beginTransaction();
+        try {
+            $entityManager->remove($product);
+            $entityManager->flush();
+            $entityManager->getConnection()->commit();
+
+            $this->addFlash("success", "Product has been deleted successfully :);)");
+            return $this->redirectToRoute('product_list');
+        } catch (Exception $e) {
+            $entityManager->getConnection()->rollBack();
+            $this->addFlash("error", "There is some problem you can not delete Product :(:(");
+            return $this->redirectToRoute('delete_product');
+        }
     }
 }
