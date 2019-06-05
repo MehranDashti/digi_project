@@ -3,34 +3,47 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
-
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputUsername" class="sr-only">Username</label>
-    <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
+    <div class="wrapper">
+        <div>
+            <form method="post">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+                <div class="form_fields">
+                    <div class="form_title">
+                        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+                    </div>
+                    <div class="label">
+                        <label for="inputUsername" class="sr-only">Username</label>
+                    </div>
+                    <div class="field">
+                        <input type="text" value="{{ last_username }}" name="username" id="inputUsername"
+                               class="form-control" placeholder="Username" required autofocus>
+                    </div>
+                    <div class="label">
+                        <label for="inputPassword" class="sr-only">Password</label>
+                    </div>
+                    <div class="field">
+                        <input type="password" name="password" id="inputPassword" class="form-control"
+                               placeholder="Password" required>
+                    </div>
+                    <div class="field_checkbox">
+                        <div class="checkbox mb-3">
+                            <input type="checkbox" name="_remember_me">
+                            <label>Remember me</label>
+                        </div>
+                    </div>
+                    <div class="save_butt">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <button class="btn btn-lg btn-primary" type="submit">
+                            Sign in
+                        </button>
+                        <button class="btn btn-lg btn-primary" type="button">
+                            <a href="{{ app.request.getBaseURL() }}/sign-up">Sign Up </a>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-
-    <button class="btn btn-lg btn-primary" type="button">
-        <a href="{{ app.request.getBaseURL() }}/sign-up" >Sign Up </a>
-    </button>
-</form>
 {% endblock %}
