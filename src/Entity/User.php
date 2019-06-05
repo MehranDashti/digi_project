@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -156,9 +155,7 @@ class User implements UserInterface
      */
     function prePersist()
     {
-        if ($this->id == null) {
-            $this->setIsAdmin(1);
-            $this->setRoles(['AdminUser']);
-        }
+        $this->setIsAdmin(1);
+        $this->setRoles(['AdminUser']);
     }
 }
