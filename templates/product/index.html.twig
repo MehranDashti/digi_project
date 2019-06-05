@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Product List{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            width: 100%;
+            text-align: center;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr {
+            width: 100%;
+        }
+
+        td {
+            width: 50%;
+        }
+    </style>
+
+
+    <div class="example-wrapper">
+        <table>
+            <tr>
+                <th> Name</th>
+                <th> Action</th>
+            </tr>
+            {% for item in products %}
+                <tr>
+                    <td>{{ item.getName }}</td>
+                    <td>
+                        <a href="{{ app.request.getBaseURL() }}/product/show/{{ item.getId }}">Show</a>
+                        <a href="{{ app.request.getBaseURL() }}/product/edit/{{ item.getId }}">Edit</a>
+                        <a href="{{ app.request.getBaseURL() }}/product/delete/{{ item.getId }}">delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+
