@@ -62,4 +62,73 @@ class VariantController extends AbstractController
             'errors' => $form->getErrors()
         ]);
     }
+
+    /**
+     * @param $variant_id
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @Route("/variant/edit/{variant_id}", name="edit_variant", requirements={"variant_id"="\d+"})
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
+     * @author Mehran
+     */
+    public function edit($variant_id, Request $request)
+    {
+        $variant = $this->getDoctrine()
+            ->getRepository(Variant::class)
+            ->findOneBy(['id' => $variant_id]);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $form = $this->createForm(VariantType::class, $variant);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->getConnection()->beginTransaction();
+            try {
+                $entityManager->persist($variant);
+                $entityManager->flush();
+                $entityManager->getConnection()->commit();
+
+                $this->addFlash("success", "New Variant has been updated successfully :);)");
+                return $this->redirectToRoute('variant_list');
+            } catch (Exception $e) {
+                $entityManager->getConnection()->rollBack();
+                $this->addFlash("error", "There is some problem you can not create Variant :(:(");
+                return $this->redirectToRoute('edit_variant');
+            }
+        }
+
+        return $this->render('variant/update.html.twig', [
+            'form' => $form->createView(),
+            'errors' => $form->getErrors()
+        ]);
+    }
+
+    /**
+     * @param $variant_id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @Route("/variant/delete/{variant_id}", name="delete_variant", requirements={"variant_id"="\d+"})
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
+     * @author Mehran
+     */
+    public function delete($variant_id)
+    {
+        $variant = $this->getDoctrine()
+            ->getRepository(Variant::class)
+            ->findOneBy(['id' => $variant_id]);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->getConnection()->beginTransaction();
+        try {
+            $entityManager->remove($variant);
+            $entityManager->flush();
+            $entityManager->getConnection()->commit();
+
+            $this->addFlash("success", "Variant has been deleted successfully :);)");
+            return $this->redirectToRoute('variant_list');
+        } catch (Exception $e) {
+            $entityManager->getConnection()->rollBack();
+            $this->addFlash("error", "There is some problem you can not delete Variant :(:(");
+            return $this->redirectToRoute('delete_variant');
+        }
+    }
 }
