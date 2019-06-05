@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Profile;
 use App\Entity\User;
+use App\Form\ProfileType;
 use App\Form\UserType;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,19 +48,27 @@ class SecurityController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword(
-                $passwordEncoder->encodePassword(
-                    $user,
-                    $user->getPassword()
-                )
-            );
+            $entityManager->getConnection()->beginTransaction();
+            try {
+                $user->setPassword(
+                    $passwordEncoder->encodePassword(
+                        $user,
+                        $user->getPassword()
+                    )
+                );
 
-            $entityManager->persist($user);
-            $entityManager->flush();
-//                $entityManager->getConnection()->commit();
+                $entityManager->persist($user);
+                $entityManager->flush();
+                $entityManager->getConnection()->commit();
 
-            $this->addFlash("success", "New User has been created successfully :);)");
-            return $this->redirectToRoute('app_login');
+                $this->addFlash("success", "New User has been created successfully :);)");
+                return $this->redirectToRoute('app_login');
+            } catch (Exception $e) {
+                $entityManager->getConnection()->rollBack();
+                $this->addFlash("error", "There is some problem you can not create user :(:(");
+                return $this->redirectToRoute('sign_up');
+            }
+
         }
 
         return $this->render('security/SignUp.html.twig', [
