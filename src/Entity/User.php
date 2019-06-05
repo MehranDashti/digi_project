@@ -13,6 +13,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface
 {
     /**
+     * @var string $primaryKey
+     */
+    protected $primaryKey = 'id';
+
+    /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -39,11 +44,6 @@ class User implements UserInterface
      * @ORM\Column(type="integer", nullable=true)
      */
     private $is_admin;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Profile", mappedBy="user", cascade={"persist", "remove"})
-     */
-    private $profile;
 
     public function getId(): ?int
     {
@@ -130,7 +130,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getProfile(): ?Profile
+    /*public function getProfile(): ?Profile
     {
         return $this->profile;
     }
@@ -146,7 +146,7 @@ class User implements UserInterface
         }
 
         return $this;
-    }
+    }*/
 
     /**
      * This method has been used for initialize role and is_admin field before create user
