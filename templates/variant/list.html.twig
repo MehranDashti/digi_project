@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Variants List{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            width: 100%;
+            text-align: center;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr {
+            width: 100%;
+        }
+
+        td {
+            width: 25%;
+        }
+    </style>
+
+
+    <div class="example-wrapper">
+        <div>
+            <button class="btn btn-lg btn-primary" type="button">
+                <a href="{{ app.request.getBaseURL() }}/variant/add" >Add Variants </a>
+            </button>
+        </div>
+        <table>
+            <tr>
+                <th> Name</th>
+                <th> Description</th>
+                <th> Product</th>
+                <th> Action</th>
+            </tr>
+            {% for item in variants %}
+                <tr>
+                    <td>{{ item.getColor }}</td>
+                    <td>{{ item.getTitle }}</td>
+                    <td>{{ item.getTitle }}</td>
+                    <td>
+                        <a href="{{ app.request.getBaseURL() }}/variant/edit/{{ item.getId }}">Edit</a>
+                        <a href="{{ app.request.getBaseURL() }}/variant/delete/{{ item.getId }}">delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+
