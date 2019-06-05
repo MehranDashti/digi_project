@@ -76,4 +76,13 @@ class SecurityController extends AbstractController
             'errors' => $form->getErrors()
         ]);
     }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @Route("/logout", name="app_logout")
+     */
+    public function logout()
+    {
+        return $this->redirectToRoute('app_login');
+    }
 }
