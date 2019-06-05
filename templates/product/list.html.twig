@@ -23,22 +23,28 @@
         }
 
         td {
-            width: 50%;
+            width: 33%;
         }
     </style>
 
 
     <div class="example-wrapper">
+        <div>
+            <button class="btn btn-lg btn-primary" type="button">
+                <a href="{{ app.request.getBaseURL() }}/product/add" >Add Product </a>
+            </button>
+        </div>
         <table>
             <tr>
                 <th> Name</th>
+                <th> Description</th>
                 <th> Action</th>
             </tr>
             {% for item in products %}
                 <tr>
-                    <td>{{ item.getName }}</td>
+                    <td>{{ item.getTitle }}</td>
+                    <td>{{ item.getDescription }}</td>
                     <td>
-                        <a href="{{ app.request.getBaseURL() }}/product/show/{{ item.getId }}">Show</a>
                         <a href="{{ app.request.getBaseURL() }}/product/edit/{{ item.getId }}">Edit</a>
                         <a href="{{ app.request.getBaseURL() }}/product/delete/{{ item.getId }}">delete</a>
                     </td>
