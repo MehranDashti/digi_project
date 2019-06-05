@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 //@ORM\EntityListeners({"App\EventListener\ProductListener"})
 /**
@@ -36,6 +38,16 @@ class Product
      * @ORM\Column(type="integer", nullable=true)
      */
     private $updated_at;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Variant", mappedBy="product")
+     */
+    private $variants;
+
+    public function __construct()
+    {
+        $this->variants = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -94,5 +106,36 @@ class Product
     {
         $this->created_at = time();
         $this->created_by = time();
+    }
+
+    /**
+     * @return Collection|Variant[]
+     */
+    public function getVariants(): Collection
+    {
+        return $this->variants;
+    }
+
+    public function addVariant(Variant $variant): self
+    {
+        if (!$this->variants->contains($variant)) {
+            $this->variants[] = $variant;
+            $variant->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVariant(Variant $variant): self
+    {
+        if ($this->variants->contains($variant)) {
+            $this->variants->removeElement($variant);
+            // set the owning side to null (unless already changed)
+            if ($variant->getProduct() === $this) {
+                $variant->setProduct(null);
+            }
+        }
+
+        return $this;
     }
 }
