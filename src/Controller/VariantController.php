@@ -53,7 +53,6 @@ class VariantController extends AbstractController
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create variant :(:(");
-                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -93,7 +92,6 @@ class VariantController extends AbstractController
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create Variant :(:(");
-                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -129,7 +127,6 @@ class VariantController extends AbstractController
         } catch (Exception $e) {
             $entityManager->getConnection()->rollBack();
             $this->addFlash("error", "There is some problem you can not delete Variant :(:(");
-            return $this->redirectToRoute($request->getRequestUri());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Elasticsearch\ClientBuilder;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
@@ -78,31 +79,33 @@ class Variant
     /**
      * @ORM\PostPersist
      */
-    public function postPersist()
+    public function postPersist(LifecycleEventArgs $args)
     {
+        $product = $this->getProduct();
+        foreach ($product->getVariants()->toArray() as $key => $item) {
+            $variants[$key]['id'] = $item->getId();
+            $variants[$key]['price'] = $item->getPrice();
+            $variants[$key]['color'] = $item->getColor();
+        }
+
         $client = ClientBuilder::create()->build();
         $params = [
             'index' => 'digi_project',
-            'type' => 'variant',
-            'id' => $this->getId(),
+            'type' => 'product',
+            'id' => $this->getProduct()->getId(),
             'body' => [
-                'title' => $this->getProduct()->getTitle(),
-                'description' => $this->getProduct()->getDescription(),
-                'price' => $this->getColor(),
-                'color' => $this->getColor(),
-                'product_id' => $this->getProduct()->getId(),
+                'doc' => [
+                    'variants' => $variants,
+                ]
             ]
         ];
-        $client->index($params);
-
+        $client->update($params);
         $redis_client = RedisAdapter::createConnection(
             'redis://localhost'
         );
-        $redis_client->set($this->getId(), json_encode([
-            'title' => $this->getProduct()->getTitle(),
-            'description' => $this->getProduct()->getDescription(),
-            'price' => $this->getColor(),
+        $redis_client->set('variant_' . $this->getId(), json_encode([
             'color' => $this->getColor(),
+            'price' => $this->getPrice(),
             'product_id' => $this->getProduct()->getId(),
         ]));
 
@@ -114,18 +117,21 @@ class Variant
      */
     public function postUpdate()
     {
+        $product = $this->getProduct();
+        foreach ($product->getVariants()->toArray() as $key => $item) {
+            $variants[$key]['id'] = $item->getId();
+            $variants[$key]['price'] = $item->getPrice();
+            $variants[$key]['color'] = $item->getColor();
+        }
+
         $client = ClientBuilder::create()->build();
         $params = [
             'index' => 'digi_project',
-            'type' => 'variant',
-            'id' => $this->getId(),
+            'type' => 'product',
+            'id' => $this->getProduct()->getId(),
             'body' => [
                 'doc' => [
-                    'title' => $this->getProduct()->getTitle(),
-                    'description' => $this->getProduct()->getDescription(),
-                    'price' => $this->getPrice(),
-                    'color' => $this->getColor(),
-                    'product_id' => $this->getProduct()->getId(),
+                    'variants' => $variants,
                 ]
             ]
         ];
@@ -133,15 +139,13 @@ class Variant
         $redis_client = RedisAdapter::createConnection(
             'redis://localhost'
         );
-        $cache_variant = $redis_client->get($this->getId());
-        if ($cache_variant != null) {
+        $cache_variant = $redis_client->get('variant_' . $this->getId());
+        if (is_null($cache_variant)) {
             $redis_client->del($this->getId());
         }
-        $redis_client->set($this->getId(), json_encode([
-            'title' => $this->getProduct()->getTitle(),
-            'description' => $this->getProduct()->getDescription(),
-            'price' => $this->getColor(),
+        $redis_client->set('variant_' . $this->getId(), json_encode([
             'color' => $this->getColor(),
+            'price' => $this->getPrice(),
             'product_id' => $this->getProduct()->getId(),
         ]));
 
@@ -149,22 +153,34 @@ class Variant
     }
 
     /**
-     * @ORM\PreRemove
+     * @ORM\PostRemove
      */
-    public function preRemove()
+    public function postRemove()
     {
+        $product = $this->getProduct();
+        foreach ($product->getVariants()->toArray() as $key => $item) {
+            $variants[$key]['id'] = $item->getId();
+            $variants[$key]['price'] = $item->getPrice();
+            $variants[$key]['color'] = $item->getColor();
+        }
+
         $client = ClientBuilder::create()->build();
         $params = [
             'index' => 'digi_project',
-            'type' => 'variant',
-            'id' => $this->getId(),
+            'type' => 'product',
+            'id' => $this->getProduct()->getId(),
+            'body' => [
+                'doc' => [
+                    'variants' => $variants,
+                ]
+            ]
         ];
-        $client->delete($params);
+        $client->update($params);
         $redis_client = RedisAdapter::createConnection(
             'redis://localhost'
         );
-        $cache_variant = $redis_client->get($this->getId());
-        if ($cache_variant != null) {
+        $cache_variant = $redis_client->get('variant_' . $this->getId());
+        if (is_null($cache_variant)) {
             $redis_client->del($this->getId());
         }
         return true;
