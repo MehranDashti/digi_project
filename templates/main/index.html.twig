@@ -3,18 +3,46 @@
 {% block title %}Hello MainController!{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <style>
+        .manage_butt {
+            width: 70%;
+            height: auto;
+            line-height: 300px;
+        }
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        .manage_butt button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #313131;
+            color: #ffffff;
+            margin-left: 50px;
+            border: 0px;
+        }
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'D:/xamp/htdocs/digi-project/src/Controller/MainController.php'|file_link(0) }}">src/Controller/MainController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'D:/xamp/htdocs/digi-project/templates/main/index.html.twig'|file_link(0) }}">templates/main/index.html.twig</a></code></li>
-    </ul>
-</div>
+        .manage_butt a {
+            text-decoration: none;
+        }
+
+        .manage_butt a:hover {
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="wrapper">
+        <div class="manage_butt">
+        <span>
+            <a href="{{ app.request.getBaseURL() }}/product/list">
+            <button class="btn btn-lg btn-primary" type="button">
+                Manage Products
+            </button>
+                </a>
+        </span>
+            <span>
+            <button class="btn btn-lg btn-primary" type="button">
+                <a href="{{ app.request.getBaseURL() }}/variant/list">Manage Variants </a>
+            </button>
+        </span>
+        </div>
+    </div>
 {% endblock %}
