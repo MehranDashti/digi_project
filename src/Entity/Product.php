@@ -102,12 +102,6 @@ class Product
         return $this;
     }
 
-    function prePersist()
-    {
-        $this->created_at = time();
-        $this->created_by = time();
-    }
-
     /**
      * @return Collection|Variant[]
      */
@@ -137,5 +131,29 @@ class Product
         }
 
         return $this;
+    }
+
+    /**
+     * This method has been called when we want add new the product
+     *
+     * @ORM\PrePersist
+     * @author Mehram
+     */
+    public function prePersist()
+    {
+        $this->setCreatedAt(time());
+        $this->setUpdatedAt(time());
+    }
+
+    /**
+     * This method has been called when we want update the product
+     * @todo When we update the product the elasticsearch must be updated
+     *
+     * @ORM\PostUpdate
+     * @author Mehran
+     */
+    public function postUpdate()
+    {
+        $this->setUpdatedAt(time());
     }
 }
