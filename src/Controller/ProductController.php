@@ -56,11 +56,9 @@ class ProductController extends AbstractController
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
-                echo "<pre>";
-                print_r($e->getMessage());
-                die();
+
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
-                return $this->redirectToRoute('add_product');
+                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -99,8 +97,9 @@ class ProductController extends AbstractController
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
+
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
-                return $this->redirectToRoute('edit_product');
+                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -117,7 +116,7 @@ class ProductController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function delete($product_id)
+    public function delete($product_id, Request $request)
     {
         $product = $this->getDoctrine()
             ->getRepository(Product::class)
@@ -133,9 +132,13 @@ class ProductController extends AbstractController
             $this->addFlash("success", "Product has been deleted successfully :);)");
             return $this->redirectToRoute('product_list');
         } catch (Exception $e) {
+                echo "<pre>";
+                print_r($e->getMessage());
+                die();
             $entityManager->getConnection()->rollBack();
+
             $this->addFlash("error", "There is some problem you can not delete Product :(:(");
-            return $this->redirectToRoute('delete_product');
+            return $this->redirectToRoute($request->getRequestUri());
         }
     }
 }
