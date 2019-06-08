@@ -182,9 +182,8 @@ class Product
 
     /**
      * @ORM\PostUpdate
-     * @param LifecycleEventArgs $args
      */
-    public function postUpdate (LifecycleEventArgs $args)
+    public function postUpdate()
     {
         $client = ClientBuilder::create()->build();
         $params = [
@@ -192,8 +191,10 @@ class Product
             'type' => 'product',
             'id' => $this->getId(),
             'body' => [
-                'title' => $this->getTitle(),
-                'description' => $this->getDescription(),
+                'doc' => [
+                    'title' => $this->getTitle(),
+                    'description' => $this->getDescription(),
+                ]
             ]
         ];
         $client->update($params);
@@ -202,7 +203,7 @@ class Product
             'redis://localhost'
         );
         $cache_variant = $redis_client->get('product_' . $this->getId());
-        if ($cache_variant != null) {
+        if (!is_null($cache_variant)) {
             $redis_client->del('product_' . $this->getId());
         }
         $redis_client->set('product_' . $this->getId(), json_encode([
@@ -222,13 +223,13 @@ class Product
         $redis_client = RedisAdapter::createConnection(
             'redis://localhost'
         );
-        if ($this->getVariants()->toArray() != null) {
+        if (!is_null($this->getVariants()->toArray())) {
             foreach ($this->getVariants()->toArray() as $item) {
                 $entityManager = $args->getObjectManager();
                 $entityManager->remove($item);
                 $entityManager->flush();
                 $cache_variant = $redis_client->get('variant_' . $item->getId());
-                if ($cache_variant != null) {
+                if (!is_null($cache_variant)) {
                     $redis_client->del('variant_' . $item->getId());
                 }
             }
@@ -242,7 +243,7 @@ class Product
         $client->delete($params);
 
         $cache_variant = $redis_client->get('product_' . $this->getId());
-        if ($cache_variant != null) {
+        if (!is_null($cache_variant)) {
             $redis_client->del('product_' . $this->getId());
         }
     }

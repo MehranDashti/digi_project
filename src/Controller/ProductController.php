@@ -58,7 +58,6 @@ class ProductController extends AbstractController
                 $entityManager->getConnection()->rollBack();
 
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
-                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -100,7 +99,6 @@ class ProductController extends AbstractController
                 $entityManager->getConnection()->rollBack();
 
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
-                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -136,7 +134,6 @@ class ProductController extends AbstractController
             $entityManager->getConnection()->rollBack();
 
             $this->addFlash("error", "There is some problem you can not delete Product :(:(");
-            return $this->redirectToRoute($request->getRequestUri());
         }
     }
 }
