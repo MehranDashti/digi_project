@@ -2,11 +2,8 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Elasticsearch\ClientBuilder;
-use mysql_xdevapi\Exception;
-use PhpParser\Node\Stmt\Throw_;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
@@ -115,7 +112,7 @@ class Variant
     /**
      * @ORM\PostUpdate
      */
-    public function postUpdate(LifecycleEventArgs $args)
+    public function postUpdate()
     {
         $client = ClientBuilder::create()->build();
         $params = [
