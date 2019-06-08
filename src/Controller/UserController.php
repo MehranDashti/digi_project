@@ -3,9 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use App\Entity\Variant;
 use App\Form\SearchIndexType;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,23 +15,21 @@ class UserController extends AbstractController
      */
     public function index(Request $request)
     {
-        $variant = new Product();
-        $entityManager = $this->getDoctrine()->getManager();
-
+        $product = new Product();
         /**
-         *
+         * This section has been used for prepare the embeded form for search product and variant
          */
-        $products = $this->getDoctrine()
-            ->getRepository(Product::class)
-            ->fetchProduct();
-        /**
-         *
-         */
-        $form = $this->createForm(SearchIndexType::class, $variant);
+        $form = $this->createForm(SearchIndexType::class, $product);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
+            $products = $this->getDoctrine()
+                ->getRepository(Product::class)
+                ->fetchProduct($product);
 
-            die();
+        } else {
+            $products = $this->getDoctrine()
+                ->getRepository(Product::class)
+                ->fetchProduct();
         }
 
         return $this->render('user/index.html.twig', [
