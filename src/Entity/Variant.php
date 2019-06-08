@@ -2,10 +2,16 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Elasticsearch\ClientBuilder;
+use mysql_xdevapi\Exception;
+use PhpParser\Node\Stmt\Throw_;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\VariantRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Variant
 {
@@ -70,5 +76,100 @@ class Variant
         $this->product = $product;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PostPersist
+     */
+    public function postPersist()
+    {
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'variant',
+            'id' => $this->getId(),
+            'body' => [
+                'title' => $this->getProduct()->getTitle(),
+                'description' => $this->getProduct()->getDescription(),
+                'price' => $this->getColor(),
+                'color' => $this->getColor(),
+                'product_id' => $this->getProduct()->getId(),
+            ]
+        ];
+        $client->index($params);
+
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
+        $redis_client->set($this->getId(), json_encode([
+            'title' => $this->getProduct()->getTitle(),
+            'description' => $this->getProduct()->getDescription(),
+            'price' => $this->getColor(),
+            'color' => $this->getColor(),
+            'product_id' => $this->getProduct()->getId(),
+        ]));
+
+        return true;
+    }
+
+    /**
+     * @ORM\PostUpdate
+     */
+    public function postUpdate(LifecycleEventArgs $args)
+    {
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'variant',
+            'id' => $this->getId(),
+            'body' => [
+                'doc' => [
+                    'title' => $this->getProduct()->getTitle(),
+                    'description' => $this->getProduct()->getDescription(),
+                    'price' => $this->getPrice(),
+                    'color' => $this->getColor(),
+                    'product_id' => $this->getProduct()->getId(),
+                ]
+            ]
+        ];
+        $client->update($params);
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
+        $cache_variant = $redis_client->get($this->getId());
+        if ($cache_variant != null) {
+            $redis_client->del($this->getId());
+        }
+        $redis_client->set($this->getId(), json_encode([
+            'title' => $this->getProduct()->getTitle(),
+            'description' => $this->getProduct()->getDescription(),
+            'price' => $this->getColor(),
+            'color' => $this->getColor(),
+            'product_id' => $this->getProduct()->getId(),
+        ]));
+
+        return true;
+    }
+
+    /**
+     * @ORM\PreRemove
+     */
+    public function preRemove()
+    {
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'variant',
+            'id' => $this->getId(),
+        ];
+        $client->delete($params);
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
+        $cache_variant = $redis_client->get($this->getId());
+        if ($cache_variant != null) {
+            $redis_client->del($this->getId());
+        }
+        return true;
     }
 }

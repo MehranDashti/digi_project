@@ -53,7 +53,7 @@ class VariantController extends AbstractController
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create variant :(:(");
-                return $this->redirectToRoute('add_variant');
+                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -93,7 +93,7 @@ class VariantController extends AbstractController
             } catch (Exception $e) {
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create Variant :(:(");
-                return $this->redirectToRoute('edit_variant');
+                return $this->redirectToRoute($request->getRequestUri());
             }
         }
 
@@ -105,12 +105,13 @@ class VariantController extends AbstractController
 
     /**
      * @param $variant_id
+     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      * @Route("/variant/delete/{variant_id}", name="delete_variant", requirements={"variant_id"="\d+"})
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function delete($variant_id)
+    public function delete($variant_id, Request $request)
     {
         $variant = $this->getDoctrine()
             ->getRepository(Variant::class)
@@ -128,7 +129,7 @@ class VariantController extends AbstractController
         } catch (Exception $e) {
             $entityManager->getConnection()->rollBack();
             $this->addFlash("error", "There is some problem you can not delete Variant :(:(");
-            return $this->redirectToRoute('delete_variant');
+            return $this->redirectToRoute($request->getRequestUri());
         }
     }
 }
