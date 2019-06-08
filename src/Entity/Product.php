@@ -147,21 +147,70 @@ class Product
     {
         $this->setCreatedAt(time());
         $this->setUpdatedAt(time());
+
+    }
+
+    /**
+     * @ORM\PostPersist
+     * @return bool
+     */
+    public function postPersist()
+    {
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $this->getId(),
+            'body' => [
+                'title' => $this->getTitle(),
+                'description' => $this->getDescription(),
+                'variants' => [],
+            ]
+        ];
+        $client->index($params);
+
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
+        $redis_client->set('product_' . $this->getId(), json_encode([
+            'title' => $this->getTitle(),
+            'description' => $this->getDescription()
+        ]));
+
+        return true;
     }
 
     /**
      * @ORM\PostUpdate
      * @param LifecycleEventArgs $args
      */
-    public function PostUpdate(LifecycleEventArgs $args)
+    public function postUpdate (LifecycleEventArgs $args)
     {
-        if ($this->getVariants()->toArray() != null) {
-            foreach ($this->getVariants()->toArray() as $item) {
-                $entityManager = $args->getObjectManager();
-                $entityManager->persist($item);
-                $entityManager->flush();
-            }
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $this->getId(),
+            'body' => [
+                'title' => $this->getTitle(),
+                'description' => $this->getDescription(),
+            ]
+        ];
+        $client->update($params);
+
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
+        $cache_variant = $redis_client->get('product_' . $this->getId());
+        if ($cache_variant != null) {
+            $redis_client->del('product_' . $this->getId());
         }
+        $redis_client->set('product_' . $this->getId(), json_encode([
+            'title' => $this->getTitle(),
+            'description' => $this->getDescription()
+        ]));
+
+        return true;
     }
 
     /**
@@ -170,12 +219,31 @@ class Product
      */
     public function preRemove(LifecycleEventArgs $args)
     {
+        $redis_client = RedisAdapter::createConnection(
+            'redis://localhost'
+        );
         if ($this->getVariants()->toArray() != null) {
             foreach ($this->getVariants()->toArray() as $item) {
                 $entityManager = $args->getObjectManager();
                 $entityManager->remove($item);
                 $entityManager->flush();
+                $cache_variant = $redis_client->get('variant_' . $item->getId());
+                if ($cache_variant != null) {
+                    $redis_client->del('variant_' . $item->getId());
+                }
             }
+        }
+        $client = ClientBuilder::create()->build();
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $this->getId(),
+        ];
+        $client->delete($params);
+
+        $cache_variant = $redis_client->get('product_' . $this->getId());
+        if ($cache_variant != null) {
+            $redis_client->del('product_' . $this->getId());
         }
     }
 }
