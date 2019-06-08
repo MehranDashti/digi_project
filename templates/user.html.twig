@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Ecommerce Site{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <style>
+        * {
+            margin: 0 auto;
+        }
+
+        body {
+            text-align: center;
+            background-color: #6E6E6E;
+        }
+
+        header {
+            width: 100%;
+            height: 70px;
+            background-color: #6E6E6E;
+        }
+
+        header h1 {
+            line-height: 35px;
+            margin-top: 35px;
+        }
+
+        .wrapper {
+            width: 100%;
+            height: 500px;
+            background-color: #eeeeee;
+            padding-top: 50px;
+        }
+
+        footer {
+            width: 100%;
+            height: 30px;
+            background-color: #6E6E6E;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Ecommerce Site</h1>
+</header>
+{% block body %}{% endblock %}
+{% block javascripts %}{% endblock %}
+<footer>
+</footer>
+</body>
+</html>
