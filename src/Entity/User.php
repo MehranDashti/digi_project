@@ -129,24 +129,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /*public function getProfile(): ?Profile
-    {
-        return $this->profile;
-    }
-
-    public function setProfile(?Profile $profile): self
-    {
-        $this->profile = $profile;
-
-        // set (or unset) the owning side of the relation if necessary
-        $newUser = $profile === null ? null : $this;
-        if ($newUser !== $profile->getUser()) {
-            $profile->setUser($newUser);
-        }
-
-        return $this;
-    }*/
-
     /**
      * This method has been used for initialize role and is_admin field before create user
      *
