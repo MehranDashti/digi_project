@@ -4,18 +4,19 @@
 
 {% block body %}
     <style>
-        .example-wrapper {
+        .wrapper {
             width: 100%;
-            text-align: center;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
+            min-height: 500px;
+            height: auto;
+            background-color: #eeeeee;
+            padding-top: 50px;
+            margin-bottom: 50px;
         }
 
         table {
-            width: 100%;
+            width: 90%;
+            height: auto;
+            border: #313131 4px double;
         }
 
         tr {
@@ -25,13 +26,17 @@
         td {
             width: 25%;
         }
+
+        tr * {
+            border: #313131 1px solid;
+        }
     </style>
 
 
-    <div class="example-wrapper">
-        <div>
+    <div class="wrapper">
+        <div class="helper-button">
             <button class="btn btn-lg btn-primary" type="button">
-                <a href="{{ app.request.getBaseURL() }}/variant/add" >Add Variants </a>
+                <a href="{{ app.request.getBaseURL() }}/variant/add">Add Variants </a>
             </button>
         </div>
         <table>
