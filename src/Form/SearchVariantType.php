@@ -14,8 +14,8 @@ class SearchVariantType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('color', TextType::class, ['required' => true])
-            ->add('price', TextType::class, ['required' => true]);
+            ->add('color', TextType::class, ['required' => false])
+            ->add('price', TextType::class, ['required' => false]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

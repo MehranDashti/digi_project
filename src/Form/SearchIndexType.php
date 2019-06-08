@@ -15,8 +15,8 @@ class SearchIndexType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', TextType::class, ['required' => true])
-            ->add('description', TextType::class, ['required' => true])
+            ->add('title', TextType::class, ['required' => false])
+            ->add('description', TextType::class, ['required' => false])
             ->add('variants', CollectionType::class, [
                 'entry_type' => SearchVariantType::class,
                 'entry_options' => ['label' => false],
