@@ -1,0 +1,53 @@
+{% extends 'user.html.twig' %}
+
+{% block title %}Ecommerce Site{% endblock %}
+
+{% block body %}
+    <style>
+        .product {
+            width: 22%;
+            height: auto;
+            border: 2px solid #565656;
+            border-radius: 5px;
+            margin-top: 30px;
+            display: inline-block;
+            margin-left: 10px;
+            padding-left: 15px;
+            padding-top: 20px;
+            padding-bottom: 15px;
+        }
+
+        .product_info {
+            width: 100%;
+            height: auto;
+        }
+
+        .variant {
+            width: 60%;
+            height: auto;
+            border: 1px #565656 solid;
+            border-radius: 5px;
+            margin-top: 10px;
+
+        }
+
+        .product_info p {
+            text-overflow: unset;
+        }
+
+    </style>
+    <div class="wrapper">
+        <div class="product">
+            <div class="product_info">
+                <h3>Title : {{ product.title }}</h3>
+                <p>Description : {{ product.description }}</p>
+                {% for variant in product.getVariants %}
+                    <div class="variant">
+                        <h3>{{ variant.getColor }}</h3>
+                        <p>{{ variant.getPrice }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

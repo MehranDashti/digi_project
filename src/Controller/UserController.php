@@ -19,28 +19,43 @@ class UserController extends AbstractController
     {
         $variant = new Product();
         $entityManager = $this->getDoctrine()->getManager();
-        $form = $this->createForm(SearchIndexType::class, $variant);
 
+        /**
+         *
+         */
+        $products = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->fetchProduct();
+        /**
+         *
+         */
+        $form = $this->createForm(SearchIndexType::class, $variant);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->getConnection()->beginTransaction();
-            try {
-                $entityManager->persist($variant);
-                $entityManager->flush();
-                $entityManager->getConnection()->commit();
 
-                $this->addFlash("success", "New Variant has been created successfully :);)");
-                return $this->redirectToRoute('variant_list');
-            } catch (Exception $e) {
-                $entityManager->getConnection()->rollBack();
-                $this->addFlash("error", "There is some problem you can not create variant :(:(");
-                return $this->redirectToRoute($request->getRequestUri());
-            }
+            die();
         }
 
         return $this->render('user/index.html.twig', [
             'form' => $form->createView(),
-            'errors' => $form->getErrors()
+            'errors' => $form->getErrors(),
+            'products' => $products
+        ]);
+    }
+
+    /**
+     * @param $product_id
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/user/product-info/{product_id}", name="product_info", requirements={"product_id"="\d+"})
+     */
+    public function userInfo($product_id)
+    {
+        $product = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->findOneBy(['id' => $product_id]);
+
+        return $this->render('user/productInfo.html.twig', [
+            'product' => $product
         ]);
     }
 }
