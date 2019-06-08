@@ -4,8 +4,12 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
-//@ORM\EntityListeners({"App\EventListener\ProductListener"})
+use Elasticsearch\ClientBuilder;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Config\Definition\Exception\Exception;
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @ORM\HasLifecycleCallbacks()
@@ -146,14 +150,32 @@ class Product
     }
 
     /**
-     * This method has been called when we want update the product
-     * @todo When we update the product the elasticsearch must be updated
-     *
      * @ORM\PostUpdate
-     * @author Mehran
+     * @param LifecycleEventArgs $args
      */
-    public function postUpdate()
+    public function PostUpdate(LifecycleEventArgs $args)
     {
-        $this->setUpdatedAt(time());
+        if ($this->getVariants()->toArray() != null) {
+            foreach ($this->getVariants()->toArray() as $item) {
+                $entityManager = $args->getObjectManager();
+                $entityManager->persist($item);
+                $entityManager->flush();
+            }
+        }
+    }
+
+    /**
+     * @param LifecycleEventArgs $args
+     * @ORM\PreRemove
+     */
+    public function preRemove(LifecycleEventArgs $args)
+    {
+        if ($this->getVariants()->toArray() != null) {
+            foreach ($this->getVariants()->toArray() as $item) {
+                $entityManager = $args->getObjectManager();
+                $entityManager->remove($item);
+                $entityManager->flush();
+            }
+        }
     }
 }
