@@ -20,7 +20,16 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function fetchProduct($data = null)
+    /**
+     * This method has been used for fetch product in two way:
+     *  One : When user load first page and see all product
+     *  Second : When user search particular product according to title, description, color and price
+     *
+     * @param null $data
+     * @return array
+     * @author Mehran
+     */
+    public function fetchProduct($data = null): array
     {
         $result = [];
         if (is_null($data)) {
