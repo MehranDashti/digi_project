@@ -2,9 +2,14 @@
 
 namespace App\Wrapper;
 
+use App\Entity\Product;
 use Elasticsearch\ClientBuilder;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
 
+/**
+ * Class ElasticWrapper
+ * @package App\Wrapper
+ * @author Mehran
+ */
 class ElasticWrapper
 {
     /**
@@ -13,13 +18,9 @@ class ElasticWrapper
     private static $instance;
 
     /**
-     * @var $redis_client
+     * @var $elastic_client
      */
-    protected $redis_client;
-    /**
-     * @var $entityManager
-     */
-    protected $entityManager;
+    protected $elastic_client;
 
     /**
      * This method has been change to private for no one can not create instance of class with new Keyword
@@ -28,10 +29,7 @@ class ElasticWrapper
      */
     private function __construct()
     {
-        $this->redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $this->entityManager = null;
+        $this->elastic_client = ClientBuilder::create()->build();
         return null;
     }
 
@@ -67,16 +65,13 @@ class ElasticWrapper
      * Variant Color
      * Variant Price
      *
-     * @param $data
+     * @param Product $data
      * @return array
      * @author Mehran
      */
-    public function searchIndex($data): array
+    public function searchIndex(Product $data): array
     {
-        $data = $this->initializeDataSearch($data);
-        $query = $this->createElasticQuery($data);
-
-        return $this->searchRequest($query);
+        return $this->searchRequest($data);
     }
 
     /**
@@ -86,7 +81,7 @@ class ElasticWrapper
      * @return array
      * @author Mehran
      */
-    protected function initializeDataSearch($data): array
+    protected function initializeDataSearch(Product $data): array
     {
         return [
             'title' => $data->getTitle(),
@@ -99,12 +94,13 @@ class ElasticWrapper
     /**
      * This method has been used for create Elastic query according to input data
      *
-     * @param $data
+     * @param Product $data
      * @return array
      * @author Mehran
      */
-    protected function createElasticQuery($data): array
+    protected function createElasticQuery(Product $data): array
     {
+        $data = $this->initializeDataSearch($data);
         $query = [
             'query' => [
                 'bool' => [
@@ -119,11 +115,11 @@ class ElasticWrapper
     /**
      * This method has been used for create match data and apply conditions to data
      *
-     * @param $data
+     * @param array $data
      * @return array
      * @author Mehran
      */
-    protected function matchData($data): array
+    protected function matchData(array $data): array
     {
         $match_data = [];
         if (!is_null($data['title'])) {
@@ -153,50 +149,81 @@ class ElasticWrapper
     /**
      * This method has been used for search in Elastic db according to input data
      *
-     * @param $query
+     * @param Product $data
      * @return array
      * @author Mehran
      */
-    protected function searchRequest($query): array
+    protected function searchRequest(Product $data): array
     {
-        $result = [];
-        echo "<pre>";
+        $query = $this->createElasticQuery($data);
         $params = [
             'index' => 'digi_project',
             'type' => 'product',
             'body' => $query
         ];
-        $client = $client = ClientBuilder::create()->build();
-        $response = $client->search($params);
+        $response = $this->elastic_client->search($params);
 
-        if (!empty($response['hits']['hits'])) {
-            foreach ($response['hits']['hits'] as $key => $hit) {
-                $cacheProduct = $this->redis_client->get('product_' . $hit['_id']);
-                if (empty($cacheProduct)) {
-                    $cacheProduct = $this->setProductCache($hit['__id']);
-                } else {
-                    $cacheProduct = json_decode($cacheProduct, true);
-                }
-                $result[$key] = array_merge($cacheProduct, ['id' => $hit['_id']]);
-            }
-        }
-        return $result;
+        return $response['hits']['hits'];
     }
 
     /**
-     * @param $product_id
-     * @return array
-     * @author Mehran
+     * This Method has been used for delete special document from document_id
+     *
+     * @param int $document_id
+     * @return bool
      */
-    protected function setProductCache($product_id): array
+    public function deleteDocument(int $document_id)
     {
-        $product = null;
-        $productData = [
-            'title' => $product->getTitle(),
-            'description' => $product->getDescription()
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $document_id,
         ];
-        $this->redis_client->set('product_' . $product->getId(), json_encode($productData));
+        $this->elastic_client->delete($params);
 
-        return $productData;
+        return true;
+    }
+
+    /**
+     * This Method has been used for update special document from document_id
+     *
+     * @param int $document_id
+     * @param array $data
+     * @return bool
+     */
+    public function updateDocument(int $document_id, array $data)
+    {
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $document_id,
+            'body' => [
+                'doc' => $data
+            ]
+        ];
+        $this->elastic_client->update($params);
+
+        return true;
+    }
+
+    /**
+     * This Method has been used for index new document
+     *
+     * @param int $document_id
+     * @param array $data
+     * @return bool
+     */
+    public function indexDocument(int $document_id, array $data)
+    {
+        $params = [
+            'index' => 'digi_project',
+            'type' => 'product',
+            'id' => $document_id,
+            'body' => $data
+
+        ];
+        $this->elastic_client->index($params);
+
+        return true;
     }
 }
