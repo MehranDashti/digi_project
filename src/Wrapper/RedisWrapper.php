@@ -17,9 +17,9 @@ class RedisWrapper
     private static $instance;
 
     /**
-     * @var $redis_client
+     * @var $redisClient
      */
-    protected $redis_client;
+    protected $redisClient;
 
     /**
      * This method has been change to private for no one can not create instance of class with new Keyword
@@ -28,7 +28,7 @@ class RedisWrapper
      */
     private function __construct()
     {
-        $this->redis_client = RedisAdapter::createConnection(
+        $this->redisClient = RedisAdapter::createConnection(
             'redis://localhost'
         );
         return null;
@@ -64,12 +64,13 @@ class RedisWrapper
      *
      * @param $key
      * @return bool
+     * @author Mehran
      */
     public function deleteCache($key): bool
     {
-        $cache_value = $this->redis_client->get($key);
+        $cache_value = $this->redisClient->get($key);
         if (!empty($cache_value)) {
-            $this->redis_client->del($key);
+            $this->redisClient->del($key);
         }
 
         return true;
@@ -82,6 +83,7 @@ class RedisWrapper
      * @param $data
      * @param bool $update_flag
      * @return bool
+     * @author Mehran
      */
     public function initializeCache($key , $data, $update_flag = false): bool
     {
@@ -91,7 +93,19 @@ class RedisWrapper
         if (is_array($data)) {
             $data = json_encode($data);
         }
-        $this->redis_client->set($key, $data);
+        $this->redisClient->set($key, $data);
         return true;
+    }
+
+    /**
+     * This method has been used for fetch particular data from cache
+     *
+     * @param $key
+     * @return bool|string|array|int
+     * @author Mehran
+     */
+    public function fetchCacheData($key)
+    {
+        return $this->redisClient->get($key);
     }
 }
