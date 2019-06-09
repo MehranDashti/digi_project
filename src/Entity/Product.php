@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Wrapper\ElasticWrapper;
+use App\Wrapper\RedisWrapper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Elasticsearch\ClientBuilder;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
@@ -147,7 +148,6 @@ class Product
     {
         $this->setCreatedAt(time());
         $this->setUpdatedAt(time());
-
     }
 
     /**
@@ -156,95 +156,52 @@ class Product
      */
     public function postPersist()
     {
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getId(),
-            'body' => [
-                'title' => $this->getTitle(),
-                'description' => $this->getDescription(),
-                'variants' => [],
-            ]
-        ];
-        $client->index($params);
-
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $redis_client->set('product_' . $this->getId(), json_encode([
+        $data = [
             'title' => $this->getTitle(),
-            'description' => $this->getDescription()
-        ]));
+            'description' => $this->getDescription(),
+            'variants' => [],
+        ];
+        ElasticWrapper::search()->indexDocument($this->getId(), $data);
+        RedisWrapper::action()->initializeCache('product_' . $this->getId(), $data);
 
         return true;
     }
 
     /**
+     * @return bool
      * @ORM\PostUpdate
      */
     public function postUpdate()
     {
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getId(),
-            'body' => [
-                'doc' => [
-                    'title' => $this->getTitle(),
-                    'description' => $this->getDescription(),
-                ]
-            ]
-        ];
-        $client->update($params);
-
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $cache_variant = $redis_client->get('product_' . $this->getId());
-        if (!is_null($cache_variant)) {
-            $redis_client->del('product_' . $this->getId());
-        }
-        $redis_client->set('product_' . $this->getId(), json_encode([
+        $data = [
             'title' => $this->getTitle(),
-            'description' => $this->getDescription()
-        ]));
+            'description' => $this->getDescription(),
+        ];
+        ElasticWrapper::search()->updateDocument($this->getId(), $data);
+        RedisWrapper::action()->initializeCache('product_' . $this->getId(), $data, true);
 
         return true;
     }
 
     /**
      * @param LifecycleEventArgs $args
+     * @return bool
      * @ORM\PreRemove
      */
     public function preRemove(LifecycleEventArgs $args)
     {
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        if (!is_null($this->getVariants()->toArray())) {
+        if (!empty($this->getVariants()->toArray())) {
             foreach ($this->getVariants()->toArray() as $item) {
                 $entityManager = $args->getObjectManager();
                 $entityManager->remove($item);
                 $entityManager->flush();
-                $cache_variant = $redis_client->get('variant_' . $item->getId());
-                if (!is_null($cache_variant)) {
-                    $redis_client->del('variant_' . $item->getId());
-                }
+                RedisWrapper::action()->deleteCache('variant_' . $item->getId());
             }
         }
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getId(),
-        ];
-        $client->delete($params);
+        ElasticWrapper::search()->deleteDocument($this->getId());
+        RedisWrapper::action()->deleteCache('product_' . $this->getId());
 
-        $cache_variant = $redis_client->get('product_' . $this->getId());
-        if (!is_null($cache_variant)) {
-            $redis_client->del('product_' . $this->getId());
-        }
+        return true;
     }
+
 }

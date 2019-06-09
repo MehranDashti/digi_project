@@ -55,8 +55,9 @@ class ProductController extends AbstractController
                 $this->addFlash("success", "New Product has been created successfully :);)");
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
+                print_r($e->getMessage());
+                die();
                 $entityManager->getConnection()->rollBack();
-
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
             }
         }
