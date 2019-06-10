@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Variant;
+use App\Form\UpdateVariantType;
 use App\Form\VariantType;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,6 +52,9 @@ class VariantController extends AbstractController
                 $this->addFlash("success", "New Variant has been created successfully :);)");
                 return $this->redirectToRoute('variant_list');
             } catch (Exception $e) {
+                echo "<pre>";
+                print_r($e->getMessage());
+                die();
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create variant :(:(");
             }
@@ -77,7 +81,7 @@ class VariantController extends AbstractController
             ->findOneBy(['id' => $variant_id]);
 
         $entityManager = $this->getDoctrine()->getManager();
-        $form = $this->createForm(VariantType::class, $variant);
+        $form = $this->createForm(UpdateVariantType::class, $variant);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
