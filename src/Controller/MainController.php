@@ -9,7 +9,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class MainController extends AbstractController
 {
     /**
-     * @Route("/main", name="main_page")
+     * @Route("/main")
+     * @Route("/main/index", name="main_page")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
     public function index()
