@@ -21,6 +21,47 @@ class ElasticWrapper
      * @var $elastic_client
      */
     protected $elastic_client;
+    /**
+     * @var $index
+     */
+    private $index;
+
+    /**
+     * @var $type
+     */
+    private $type;
+
+    /**
+     * @param $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param $type
+     */
+    public function setIndex($index)
+    {
+        $this->index = $index;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIndex()
+    {
+        return $this->index;
+    }
 
     /**
      * This method has been change to private for no one can not create instance of class with new Keyword
@@ -30,6 +71,9 @@ class ElasticWrapper
     private function __construct()
     {
         $this->elastic_client = ClientBuilder::create()->build();
+        $this->setIndex('digi_project');
+        $this->setType('product');
+
         return null;
     }
 
@@ -157,8 +201,8 @@ class ElasticWrapper
     {
         $query = $this->createElasticQuery($data);
         $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
+            'index' => $this->getIndex(),
+            'type' => $this->getType(),
             'body' => $query
         ];
         $response = $this->elastic_client->search($params);
@@ -175,8 +219,8 @@ class ElasticWrapper
     public function deleteDocument(int $document_id)
     {
         $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
+            'index' => $this->getIndex(),
+            'type' => $this->getType(),
             'id' => $document_id,
         ];
         $this->elastic_client->delete($params);
@@ -194,8 +238,8 @@ class ElasticWrapper
     public function updateDocument(int $document_id, array $data)
     {
         $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
+            'index' => $this->getIndex(),
+            'type' => $this->getType(),
             'id' => $document_id,
             'body' => [
                 'doc' => $data
@@ -216,8 +260,8 @@ class ElasticWrapper
     public function indexDocument(int $document_id, array $data)
     {
         $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
+            'index' => $this->getIndex(),
+            'type' => $this->getType(),
             'id' => $document_id,
             'body' => $data
 
