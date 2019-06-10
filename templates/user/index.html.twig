@@ -12,13 +12,36 @@
         .form_fields {
             width: 80%;
             height: auto;
-            /*background-color: #0000F0;*/
+        }
+
+        .user_login {
+            width: 80%;
+            height: auto;
+            text-align: left;
+        }
+
+        .user_login button{
+            width: 100px;
+            height: 40px;
+            background-color: #313131;
+            color: #ffffff;
+            margin-bottom: 20px;
+            border: 0px;
+            border-radius: 5px;
+        }
+
+        .user_login a{
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        #search_index_variants___name__ {
+            display: none;
         }
 
         .form_fields .fields {
             width: 100%;
             height: auto;
-            /*background-color: red;*/
         }
 
         .form_fields .fields .search_field {
@@ -85,7 +108,7 @@
             height: 80px;
         }
 
-        .product_info p{
+        .product_info p {
             text-overflow: unset;
         }
 
@@ -95,7 +118,7 @@
             text-align: right;
         }
 
-        .product_butt button{
+        .product_butt button {
             width: 70px;
             height: 30px;
             background-color: #313131;
@@ -112,6 +135,14 @@
         }
     </style>
     <div class="wrapper">
+        {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+            <div class="user_login">
+                <button class="btn btn-lg btn-primary" type="button">
+                    <a href="{{ app.request.getBaseURL() }}/login"> Login </a>
+                </button>
+            </div>
+        {% endif %}
+
         {{ form_start(form) }}
         <div class="form_fields">
             <div class="fields">
