@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use App\Wrapper\ElasticWrapper;
+use App\Wrapper\RedisWrapper;
 use Doctrine\ORM\Mapping as ORM;
 use Elasticsearch\ClientBuilder;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\VariantRepository")
@@ -77,86 +77,59 @@ class Variant
     }
 
     /**
+     * @return bool
      * @ORM\PostPersist
      */
-    public function postPersist(LifecycleEventArgs $args)
+    public function postPersist()
     {
-        $product = $this->getProduct();
-        foreach ($product->getVariants()->toArray() as $key => $item) {
-            $variants[$key]['id'] = $item->getId();
-            $variants[$key]['price'] = $item->getPrice();
-            $variants[$key]['color'] = $item->getColor();
-        }
+        ElasticWrapper::search()->updateDocument($this->getProduct()->getId(), $this->fetchProductVariants());
 
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getProduct()->getId(),
-            'body' => [
-                'doc' => [
-                    'variants' => $variants,
-                ]
-            ]
-        ];
-        $client->update($params);
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $redis_client->set('variant_' . $this->getId(), json_encode([
+        RedisWrapper::action()->initializeCache('variant_' . $this->getId(), [
             'color' => $this->getColor(),
             'price' => $this->getPrice(),
             'product_id' => $this->getProduct()->getId(),
-        ]));
+        ]);
 
         return true;
     }
 
     /**
+     * @return bool
      * @ORM\PostUpdate
      */
     public function postUpdate()
     {
-        $product = $this->getProduct();
-        foreach ($product->getVariants()->toArray() as $key => $item) {
-            $variants[$key]['id'] = $item->getId();
-            $variants[$key]['price'] = $item->getPrice();
-            $variants[$key]['color'] = $item->getColor();
-        }
+        ElasticWrapper::search()->updateDocument($this->getProduct()->getId(), $this->fetchProductVariants());
 
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getProduct()->getId(),
-            'body' => [
-                'doc' => [
-                    'variants' => $variants,
-                ]
-            ]
-        ];
-        $client->update($params);
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $cache_variant = $redis_client->get('variant_' . $this->getId());
-        if (is_null($cache_variant)) {
-            $redis_client->del($this->getId());
-        }
-        $redis_client->set('variant_' . $this->getId(), json_encode([
+        RedisWrapper::action()->initializeCache('variant_' . $this->getId(), [
             'color' => $this->getColor(),
             'price' => $this->getPrice(),
             'product_id' => $this->getProduct()->getId(),
-        ]));
+        ], true);
 
         return true;
     }
 
     /**
+     * @return bool
      * @ORM\PostRemove
      */
     public function postRemove()
     {
+        ElasticWrapper::search()->updateDocument($this->getProduct()->getId(), $this->fetchProductVariants());
+        RedisWrapper::action()->deleteCache('variant_' . $this->getId());
+        return true;
+    }
+
+    /**
+     * This method has been used for fetch variants product for particular product
+     *
+     * @return array
+     * @author Mehran
+     */
+    private function fetchProductVariants(): array
+    {
+        $variants = [];
         $product = $this->getProduct();
         foreach ($product->getVariants()->toArray() as $key => $item) {
             $variants[$key]['id'] = $item->getId();
@@ -164,25 +137,8 @@ class Variant
             $variants[$key]['color'] = $item->getColor();
         }
 
-        $client = ClientBuilder::create()->build();
-        $params = [
-            'index' => 'digi_project',
-            'type' => 'product',
-            'id' => $this->getProduct()->getId(),
-            'body' => [
-                'doc' => [
-                    'variants' => $variants,
-                ]
-            ]
+        return  [
+            'variants' => $variants,
         ];
-        $client->update($params);
-        $redis_client = RedisAdapter::createConnection(
-            'redis://localhost'
-        );
-        $cache_variant = $redis_client->get('variant_' . $this->getId());
-        if (is_null($cache_variant)) {
-            $redis_client->del($this->getId());
-        }
-        return true;
     }
 }
