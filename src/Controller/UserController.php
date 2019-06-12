@@ -7,13 +7,16 @@ use App\Form\SearchIndexType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
     /**
+     * @param Request $request
      * @Route("/user", name="user")
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $product = new Product();
         /**
@@ -44,7 +47,7 @@ class UserController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/user/product-info/{product_id}", name="product_info", requirements={"product_id"="\d+"})
      */
-    public function userInfo($product_id)
+    public function userInfo($product_id): Response
     {
         $product = $this->getDoctrine()
             ->getRepository(Product::class)

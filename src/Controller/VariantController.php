@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\Response;
 
 class VariantController extends AbstractController
 {
@@ -17,7 +18,7 @@ class VariantController extends AbstractController
      * @Route("/variant/list", name="variant_list")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
-    public function list()
+    public function list(): Response
     {
         $variants = $this->getDoctrine()
             ->getRepository(Variant::class)
@@ -35,7 +36,7 @@ class VariantController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function add(Request $request)
+    public function add(Request $request): Response
     {
         $variant = new Variant();
         $entityManager = $this->getDoctrine()->getManager();
@@ -74,7 +75,7 @@ class VariantController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function edit($variant_id, Request $request)
+    public function edit($variant_id, Request $request): Response
     {
         $variant = $this->getDoctrine()
             ->getRepository(Variant::class)
@@ -107,13 +108,12 @@ class VariantController extends AbstractController
 
     /**
      * @param $variant_id
-     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      * @Route("/variant/delete/{variant_id}", name="delete_variant", requirements={"variant_id"="\d+"})
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function delete($variant_id, Request $request)
+    public function delete($variant_id): Response
     {
         $variant = $this->getDoctrine()
             ->getRepository(Variant::class)

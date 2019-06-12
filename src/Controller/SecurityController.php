@@ -2,14 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Profile;
 use App\Entity\User;
-use App\Form\ProfileType;
 use App\Form\UserType;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,13 +15,19 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     /**
+     * @param AuthenticationUtils $authenticationUtils
      * @Route("/login", name="app_login")
+     * @return Response
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // get the login error if there is one
+        /**
+         * get the login error if there is one
+         */
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
+        /**
+         * last username entered by the user
+         */
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
@@ -50,12 +52,7 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->getConnection()->beginTransaction();
             try {
-                $user->setPassword(
-                    $passwordEncoder->encodePassword(
-                        $user,
-                        $user->getPassword()
-                    )
-                );
+                $user->setPassword($passwordEncoder->encodePassword($user, $user->getPassword()));
 
                 $entityManager->persist($user);
                 $entityManager->flush();
@@ -68,7 +65,6 @@ class SecurityController extends AbstractController
                 $this->addFlash("error", "There is some problem you can not create user :(:(");
                 return $this->redirectToRoute('sign_up');
             }
-
         }
 
         return $this->render('security/SignUp.html.twig', [

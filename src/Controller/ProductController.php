@@ -20,7 +20,7 @@ class ProductController extends AbstractController
      * @Route("/product/list", name="product_list")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
-    public function list()
+    public function list(): Response
     {
         $products = $this->getDoctrine()
             ->getRepository(Product::class)
@@ -38,7 +38,7 @@ class ProductController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function add(Request $request)
+    public function add(Request $request): Response
     {
         $product = new Product();
         $entityManager = $this->getDoctrine()->getManager();
@@ -55,8 +55,6 @@ class ProductController extends AbstractController
                 $this->addFlash("success", "New Product has been created successfully :);)");
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
-                print_r($e->getMessage());
-                die();
                 $entityManager->getConnection()->rollBack();
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
             }
@@ -76,7 +74,7 @@ class ProductController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function edit($product_id, Request $request)
+    public function edit($product_id, Request $request): Response
     {
         $product = $this->getDoctrine()
             ->getRepository(Product::class)
@@ -96,9 +94,7 @@ class ProductController extends AbstractController
                 $this->addFlash("success", "New Product has been updated successfully :);)");
                 return $this->redirectToRoute('product_list');
             } catch (Exception $e) {
-
                 $entityManager->getConnection()->rollBack();
-
                 $this->addFlash("error", "There is some problem you can not create Product :(:(");
             }
         }
@@ -116,7 +112,7 @@ class ProductController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @author Mehran
      */
-    public function delete($product_id, Request $request)
+    public function delete($product_id): Response
     {
         $product = $this->getDoctrine()
             ->getRepository(Product::class)
@@ -133,7 +129,6 @@ class ProductController extends AbstractController
             return $this->redirectToRoute('product_list');
         } catch (Exception $e) {
             $entityManager->getConnection()->rollBack();
-
             $this->addFlash("error", "There is some problem you can not delete Product :(:(");
         }
     }
