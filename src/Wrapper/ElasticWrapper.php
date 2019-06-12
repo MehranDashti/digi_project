@@ -57,6 +57,7 @@ class ElasticWrapper
 
     /**
      * @return mixed
+     * @author Mehran
      */
     public function getIndex()
     {
@@ -67,6 +68,7 @@ class ElasticWrapper
      * This method has been change to private for no one can not create instance of class with new Keyword
      *
      * @return null
+     * @author Mehran
      */
     private function __construct()
     {
@@ -74,6 +76,7 @@ class ElasticWrapper
         $this->setIndex('digi_project');
         $this->setType('product');
 
+        $this->CheckingIndex();
         return null;
     }
 
@@ -81,6 +84,7 @@ class ElasticWrapper
      * This method return null object for no one can not create instance of class with new Keyword
      *
      * @return null
+     * @author Mehran
      */
     public function __clone()
     {
@@ -197,6 +201,7 @@ class ElasticWrapper
      *
      * @param int $document_id
      * @return bool
+     * @author Mehran
      */
     public function deleteDocument(int $document_id)
     {
@@ -216,6 +221,7 @@ class ElasticWrapper
      * @param int $document_id
      * @param array $data
      * @return bool
+     * @author Mehran
      */
     public function updateDocument(int $document_id, array $data)
     {
@@ -238,6 +244,7 @@ class ElasticWrapper
      * @param int $document_id
      * @param array $data
      * @return bool
+     * @author Mehran
      */
     public function indexDocument(int $document_id, array $data)
     {
@@ -249,6 +256,42 @@ class ElasticWrapper
 
         ];
         $this->elastic_client->index($params);
+
+        return true;
+    }
+
+    /**
+     * This Methd has been used for check current index exist or not
+     * If current index is not exist make it
+     *
+     * @return bool
+     * @author Mehran
+     */
+    public function CheckingIndex()
+    {
+        $params = [
+            'index' => $this->getIndex(),
+        ];
+        $response = $this->elastic_client->indices()->exists($params);
+        if (!$response) {
+            $this->initializeIndex();
+        }
+
+        return true;
+    }
+
+    /**
+     * This method has been used for initialize new index
+     *
+     * @return bool
+     * @author Mehran
+     */
+    public function initializeIndex()
+    {
+        $params = [
+            'index' => $this->getIndex(),
+        ];
+        $this->elastic_client->indices()->create($params);
 
         return true;
     }
