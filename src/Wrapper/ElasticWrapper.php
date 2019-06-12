@@ -2,7 +2,6 @@
 
 namespace App\Wrapper;
 
-use App\Entity\Product;
 use Elasticsearch\ClientBuilder;
 
 /**
