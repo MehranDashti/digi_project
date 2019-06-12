@@ -55,7 +55,7 @@ class ProductRepository extends ServiceEntityRepository
      */
     public function searchElasticIndex(Product $data):array
     {
-        $response = ElasticWrapper::search()->searchIndex($data);
+        $response = ElasticWrapper::search()->searchIndex($this->initializeDataSearch($data));
         if (!empty($response)) {
             foreach ($response as $key => $hit) {
                 $cacheProduct = RedisWrapper::action()->fetchCacheData('product_' . $hit['_id']);
@@ -87,5 +87,22 @@ class ProductRepository extends ServiceEntityRepository
         RedisWrapper::action()->initializeCache('product_' . $product->getId(), $productData);
 
         return $productData;
+    }
+
+    /**
+     * This Method has been used for prepare search data and fetch it from entity
+     *
+     * @param $data
+     * @return array
+     * @author Mehran
+     */
+    protected function initializeDataSearch(Product $data): array
+    {
+        return [
+            'title' => $data->getTitle(),
+            'description' => $data->getDescription(),
+            'color' => $data->getVariants()->toArray()['__name__']->getColor(),
+            'price' => $data->getVariants()->toArray()['__name__']->getPrice(),
+        ];
     }
 }

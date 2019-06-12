@@ -109,42 +109,24 @@ class ElasticWrapper
      * Variant Color
      * Variant Price
      *
-     * @param Product $data
+     * @param array $data
      * @return array
      * @author Mehran
      */
-    public function searchIndex(Product $data): array
+    public function searchIndex(array $data): array
     {
         return $this->searchRequest($data);
     }
 
     /**
-     * This Method has been used for prepare search data and fetch it from entity
-     *
-     * @param $data
-     * @return array
-     * @author Mehran
-     */
-    protected function initializeDataSearch(Product $data): array
-    {
-        return [
-            'title' => $data->getTitle(),
-            'description' => $data->getDescription(),
-            'color' => $data->getVariants()->toArray()['__name__']->getColor(),
-            'price' => $data->getVariants()->toArray()['__name__']->getPrice(),
-        ];
-    }
-
-    /**
      * This method has been used for create Elastic query according to input data
      *
-     * @param Product $data
+     * @param array $data
      * @return array
      * @author Mehran
      */
-    protected function createElasticQuery(Product $data): array
+    protected function createElasticQuery(array $data): array
     {
-        $data = $this->initializeDataSearch($data);
         $query = [
             'query' => [
                 'bool' => [
@@ -193,11 +175,11 @@ class ElasticWrapper
     /**
      * This method has been used for search in Elastic db according to input data
      *
-     * @param Product $data
+     * @param array $data
      * @return array
      * @author Mehran
      */
-    protected function searchRequest(Product $data): array
+    protected function searchRequest(array $data): array
     {
         $query = $this->createElasticQuery($data);
         $params = [
