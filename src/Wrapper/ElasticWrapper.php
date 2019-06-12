@@ -163,12 +163,12 @@ class ElasticWrapper
         }
         if (!is_null($data['price'])) {
             $match_data[]['match'] = [
-                'variant.price' => $data['price']
+                'variants.price' => $data['price']
             ];
         }
         if (!is_null($data['color'])) {
             $match_data[]['match'] = [
-                'variant.color' => $data['color']
+                'variants.color' => $data['color']
             ];
         }
 
@@ -188,10 +188,9 @@ class ElasticWrapper
         $params = [
             'index' => $this->getIndex(),
             'type' => $this->getType(),
-            'body' => $query
+            'body' => $query//gray
         ];
         $response = $this->elastic_client->search($params);
-
         return $response['hits']['hits'];
     }
 
