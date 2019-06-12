@@ -151,6 +151,17 @@ class Product
     }
 
     /**
+     * This method has been called when we want update particular product
+     *
+     * @ORM\PreUpdate
+     * @author Mehram
+     */
+    public function preUpdate()
+    {
+        $this->setUpdatedAt(time());
+    }
+
+    /**
      * @ORM\PostPersist
      * @return bool
      */

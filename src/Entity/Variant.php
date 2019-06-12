@@ -34,6 +34,16 @@ class Variant
      */
     private $product;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $created_at;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $updated_at;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +83,53 @@ class Variant
         $this->product = $product;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?int
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(?int $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?int
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?int $updated_at): self
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * This method has been called when we want add new the product
+     *
+     * @ORM\PrePersist
+     * @author Mehram
+     */
+    public function prePersist()
+    {
+        $this->setCreatedAt(time());
+        $this->setUpdatedAt(time());
+    }
+
+    /**
+     * This method has been called when we want update particular product
+     *
+     * @ORM\PreUpdate
+     * @author Mehram
+     */
+    public function preUpdate()
+    {
+        $this->setUpdatedAt(time());
     }
 
     /**
