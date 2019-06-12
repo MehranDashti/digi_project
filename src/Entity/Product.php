@@ -162,6 +162,8 @@ class Product
     }
 
     /**
+     * When new product has been added, it need add in elasticSearch and put it to cache
+     *
      * @ORM\PostPersist
      * @return bool
      */
@@ -179,6 +181,8 @@ class Product
     }
 
     /**
+     * When particular product has been updated, it need updated in elasticSearch and update it in cache
+     *
      * @return bool
      * @ORM\PostUpdate
      */
@@ -195,6 +199,8 @@ class Product
     }
 
     /**
+     * When particular product has been deleted, it need update the elasticSearch and update it in cache
+     *
      * @param LifecycleEventArgs $args
      * @return bool
      * @ORM\PreRemove

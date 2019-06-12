@@ -133,6 +133,8 @@ class Variant
     }
 
     /**
+     * When new variant has been added, it need add it in elasticSearch and put it to cache
+     *
      * @return bool
      * @ORM\PostPersist
      */
@@ -150,6 +152,8 @@ class Variant
     }
 
     /**
+     * When new variant has been updated, it need update it in elasticSearch and update it in cache
+     *
      * @return bool
      * @ORM\PostUpdate
      */
@@ -167,8 +171,10 @@ class Variant
     }
 
     /**
+     * When new variant has been deleted, it need update it in elasticSearch and deleted it in cache
+     *
      * @return bool
-     * @ORM\PostRemove
+     * @ORM\PostUpdate
      */
     public function postRemove()
     {
