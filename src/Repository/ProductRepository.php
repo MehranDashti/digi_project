@@ -49,6 +49,9 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
+     * This has been used for search data in elastic search, this data contain :
+     * Title, Description, Color, Price
+     *
      * @param Product $data
      * @return array
      * @author Mehran
@@ -73,6 +76,8 @@ class ProductRepository extends ServiceEntityRepository
 
 
     /**
+     * This method has been used for update cache to new state
+     *
      * @param integer $product_id
      * @return array
      * @author Mehran
