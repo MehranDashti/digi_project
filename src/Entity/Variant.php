@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Wrapper\ElasticWrapper;
 use App\Wrapper\RedisWrapper;
 use Doctrine\ORM\Mapping as ORM;
-use Elasticsearch\ClientBuilder;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\VariantRepository")
